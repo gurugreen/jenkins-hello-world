@@ -30,8 +30,8 @@ pipeline {
     }
     stage('Integration Test') {
       steps {
-        sh 'sleep 5s'
-        sh 'curl -s http://localhost:6767/hello'
+        sh "sleep ${params.SLEEP_TIME}"
+        sh "curl -s http://localhost:${params.APP_PORT}/hello"
       }
     }
 
