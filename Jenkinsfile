@@ -21,6 +21,24 @@ pipeline {
         junit(testResults: 'target/surefire-reports/TEST-*.xml', keepProperties: true, keepTestNames: true)
       }
     }
+    stage('container') {
+        steps {
+            sh 'echo Docker Build Image'
+            sh 'echo Docker Tag Image'
+            sh 'echo Docker Push Image'
+        }
+    }
+    stage('kubernetes') {
+        steps {
+            sh 'echo Deploy to kuberenetes using ArgoCD'
+        }
+    }    
+    stage('Integration Test') {
+      steps {
+        sh 'sleep 5s'
+        sh 'curl -s http://localhost:6767/hello'
+      }
+    }
 
   }
   tools {
