@@ -21,6 +21,18 @@ pipeline {
         junit(testResults: 'target/surefire-reports/TEST-*.xml', keepProperties: true, keepTestNames: true)
       }
     }
+    stage('Deploy') {
+      steps {
+        sh 'echo Deploying the application'
+        sh """java -jar target/hello-demo-*.jar > /dev/null & """
+      }
+    }
+    stage('Integration Test') {
+      steps {
+        sh 'sleep 5s'
+        sh 'curl -s http://localhost:6767/hello'
+      }
+    }
 
   }
   tools {
