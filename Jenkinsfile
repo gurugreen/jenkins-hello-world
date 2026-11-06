@@ -1,29 +1,37 @@
 pipeline {
     agent any
-
-    tools {
-        maven 'm3'
-    }
-
+    tools { maven 'm3' }
     stages {
-        stage('Echo Maven Version') {
-            steps {
-              sh '''
-                echo "Maven Version"
-                mvn -version
-              '''             
-            }
-        }
         stage('Build') {
             steps {
-                sh 'mvn clean install -DskipTests'
-                archiveArtifacts artifacts: 'target/hello-demo-*.jar', followSymlinks: false
+                sh 'mvn clean package -DskipTests=true'
+                archiveArtifacts 'target/hello-demo-*.jar'
             }
         }
         stage('Test') {
             steps {
                 sh 'mvn test'
-                junit 'target/surefire-reports/TEST-com.kodekloud.hello_demo.HelloControllerTests.xml'
+                junit(testResults: 'target/surefire-reports/TEST-*.xml',
+                      keepProperties: true,
+                      keepTestNames: true)
+            }
+        }
+        stage('Containerization') {
+            steps {
+                sh 'echo Docker Build Image..'
+                sh 'echo Docker Tag Image....'
+                sh 'echo Docker Push Image......'
+            }
+        }
+        stage('Kubernetes Deployment') {
+            steps {
+                sh 'echo Deploy to Kubernetes using ArgoCD'
+            }
+        }
+        stage('Integration Testing') {
+            steps {
+                sh 'sleep 10s'
+                sh 'echo Testing using cURL commands......'
             }
         }
     }
