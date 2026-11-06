@@ -1,29 +1,36 @@
 pipeline {
     agent any
-
-    tools {
-        maven 'm3'
-    }
-
+    tools { maven 'm3' }
     stages {
-        stage('Echo Maven Version') {
+        stage('Maven Version') {
             steps {
-              sh '''
-                echo "Maven Version"
-                mvn -version
-              '''             
+                sh 'echo Print Maven Version'
+                sh 'mvn -version'
             }
         }
         stage('Build') {
             steps {
-                sh 'mvn clean install -DskipTests'
-                archiveArtifacts artifacts: 'target/hello-demo-*.jar', followSymlinks: false
+                sh 'mvn clean package -DskipTests=true'
+                archiveArtifacts 'target/hello-demo-*.jar'
             }
         }
         stage('Test') {
             steps {
                 sh 'mvn test'
-                junit 'target/surefire-reports/TEST-com.kodekloud.hello_demo.HelloControllerTests.xml'
+                junit(testResults: 'target/surefire-reports/TEST-*.xml',
+                      keepProperties: true,
+                      keepTestNames: true)
+            }
+        }
+        stage('Local Deployment') {
+            steps {
+                sh 'java -jar target/hello-demo-*.jar > /dev/null &'
+            }
+        }
+        stage('Integration Testing') {
+            steps {
+                sh 'sleep 10s'
+                sh 'curl -s http://localhost:6767/hello'
             }
         }
     }
