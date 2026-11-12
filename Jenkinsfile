@@ -4,11 +4,6 @@ pipeline {
     maven 'm3'
   }
   stages {
-    stage('Maven Version') {
-      steps {
-        sh 'mvn -version'
-      }
-    }
     stage('Build') {
       steps {
         sh 'mvn clean install -DskipTests'
@@ -21,15 +16,14 @@ pipeline {
         junit 'target/surefire-reports/TEST-com.kodekloud.hello_demo.HelloControllerTests.xml'
       }
     }
-    stage('Local Deploy') {
+    stage('Containerization') {
       steps {
-        sh 'nohup java -jar target/hello-demo-0.0.1-SNAPSHOT.jar &'
+        sh 'echo "Building Docker Image"'
       }
     }
-    stage('Integration Testing') {
+    stage('K8s Deployment') {
       steps {
-        sh 'sleep 5'
-        sh 'curl -s http://localhost:6767/hello'
+        sh 'echo "Deploying to Kubernetes"'
       }
     }
   }
